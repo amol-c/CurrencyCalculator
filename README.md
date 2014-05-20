@@ -21,3 +21,6 @@ CurrencyHandlerTests is the unit test which tests the working of the Model updat
 
 
 
+Instructions to run:
+
+Incase there are any compiler errors, please check the path under Library Search Paths under Buildsettings. Make sure its pointing to the right places.
