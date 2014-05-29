@@ -6,11 +6,12 @@
 //  Copyright (c) 2014 Amol Chaudhari. All rights reserved.
 //
 
-#import "MainViewController.h"
-#import "CurrencyDataModel.h"
-#import "ConnectionFactory.h"
+#import "CCMainViewController.h"
+#import "CCDataModelProtocol.h"
+#import "CCDataModelFactory.h"
+#import "CCConnectionFactory.h"
 
-@interface MainViewController ()<UITextFieldDelegate> {
+@interface CCMainViewController ()<UITextFieldDelegate> {
     NSMutableArray *_connectionHandlerArray;
 }
 @property(nonatomic)NSString* dataValue;
@@ -23,11 +24,11 @@
 
 @property (nonatomic,weak)IBOutlet UITextField *numberOfDollars;
 
--(IBAction)refreshData:(id)sender;
+-(IBAction)willRefreshData:(id)sender;
 
 @end
 
-@implementation MainViewController
+@implementation CCMainViewController
 
 #pragma mark - View Lifecycle Events
 - (void)viewDidLoad
@@ -35,27 +36,27 @@
     [super viewDidLoad];
     _connectionHandlerArray = [[NSMutableArray alloc]init];
 	// Do any additional setup after loading the view, typically from a nib.
-    ConnectionHandler *connectionHandler = [ConnectionFactory createConnectionWithCurrencyType:UKPounds];
+    id<CCConnectionProtocol> connectionHandler = [CCConnectionFactory createConnectionWithCurrencyType:UKPoundsModeDefault];
     [_connectionHandlerArray addObject:connectionHandler];
     
-    connectionHandler = [ConnectionFactory createConnectionWithCurrencyType:Euro];
+    connectionHandler = [CCConnectionFactory createConnectionWithCurrencyType:EuroMode];
     [_connectionHandlerArray addObject:connectionHandler];
-    connectionHandler = [ConnectionFactory createConnectionWithCurrencyType:JapanYen];
+    connectionHandler = [CCConnectionFactory createConnectionWithCurrencyType:JapanYenMode];
     [_connectionHandlerArray addObject:connectionHandler];
-    connectionHandler = [ConnectionFactory createConnectionWithCurrencyType:BrazilReal];
+    connectionHandler = [CCConnectionFactory createConnectionWithCurrencyType:BrazilRealMode];
     [_connectionHandlerArray addObject:connectionHandler];
 
     
-    CurrencyDataModel *currencyDataModel = [CurrencyDataModel sharedModel];
-    [currencyDataModel addObserver:self forKeyPath:@"allRecentCurrencyData" options:NSKeyValueObservingOptionNew context:nil];
+    NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
+    [currencyDataModel addObserver:self forKeyPath:NSStringFromSelector(@selector(allRecentCurrencyData)) options:NSKeyValueObservingOptionNew context:nil];
     
     [_numberOfDollars setDelegate:self]; //To dismiss the key board
 }
 
 
 -(void)dealloc {
-    CurrencyDataModel *currencyDataModel = [CurrencyDataModel sharedModel];
-    [currencyDataModel removeObserver:self forKeyPath:@"allRecentCurrencyData"];
+    NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
+    [currencyDataModel removeObserver:self forKeyPath:NSStringFromSelector(@selector(allRecentCurrencyData))];
 }
 
 - (void)didReceiveMemoryWarning
@@ -71,7 +72,7 @@
                        change:(NSDictionary *)change
                       context:(void *)context {
     
-    if ([keyPath isEqualToString:@"allRecentCurrencyData"]) {
+    if ([keyPath isEqualToString:NSStringFromSelector(@selector(allRecentCurrencyData))]) {
         NSMutableDictionary *changeCurrency = [change objectForKey:NSKeyValueChangeNewKey];
         NSString *stringValue;
       
@@ -113,11 +114,11 @@
 
 
 #pragma mark - Events
--(IBAction)refreshData:(id)sender {
+-(IBAction)willRefreshData:(id)sender {
     int intValue =[_numberOfDollars.text intValue];
     if (intValue) {
-        for (ConnectionHandler *eachHandler in _connectionHandlerArray) {
-            [eachHandler refreshDataWithQuantity:[_numberOfDollars.text intValue]];
+        for (id<CCConnectionProtocol> eachHandler in _connectionHandlerArray) {
+            [eachHandler willRefreshDataWithQuantity:[_numberOfDollars.text intValue]];
         }
     }else {
         [_recentBrazilRealLabel setText:@"0"] ;

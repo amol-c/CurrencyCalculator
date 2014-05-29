@@ -8,9 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-#import "CorePlot-CocoaTouch.h"
 
-@interface CorePlotViewController : UIViewController
+@interface CCCorePlotViewController : UIViewController
 
 
 @end

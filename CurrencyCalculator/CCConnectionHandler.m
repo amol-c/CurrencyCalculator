@@ -6,45 +6,45 @@
 //  Copyright (c) 2014 Amol Chaudhari. All rights reserved.
 //
 
-#import "ConnectionHandler.h"
-#import "CurrencyDataModel.h"
+#import "CCConnectionHandler.h"
+#import "CCDataModelProtocol.h"
+#import "CCDataModelFactory.h"
+#import "CCConstants.h"
 
-#define kbaseUrl @"http://rate-exchange.appspot.com/currency?from="
-
-@interface ConnectionHandler ()
+@interface CCConnectionHandler ()
 @property(nonatomic,readwrite)CurrencyType currencyType;
 @end
 
-@implementation ConnectionHandler {
+@implementation CCConnectionHandler {
 }
 
 -(id)initWithCurrencyType:(CurrencyType)currencyType{
    
     if (self=[super init]) {
         _currencyType=currencyType;
-        [self refreshDataWithQuantity:1];
+        [self willRefreshDataWithQuantity:1];
     }
     return self;
 }
 
 #pragma mark - Public Method
--(NSString *)constructUrlFromQuantity:(int)quantity {
+-(NSString *)willConstructUrlFromQuantity:(int)quantity {
     
     NSString *processedUrlString;
     
 
     switch (_currencyType) {
-            case JapanYen:
-            processedUrlString = [kbaseUrl stringByAppendingString:@"USD&to=JPY&q="];
+            case JapanYenMode:
+            processedUrlString = [CCBaseUrl stringByAppendingString:@"USD&to=JPY&q="];
             break;
-            case Euro:
-            processedUrlString = [kbaseUrl stringByAppendingString:@"USD&to=eur&q="];
+            case EuroMode:
+            processedUrlString = [CCBaseUrl stringByAppendingString:@"USD&to=eur&q="];
             break;
-            case BrazilReal:
-            processedUrlString = [kbaseUrl stringByAppendingString:@"USD&to=brl&q="];
+            case BrazilRealMode:
+            processedUrlString = [CCBaseUrl stringByAppendingString:@"USD&to=brl&q="];
             break;
         default:
-            processedUrlString = [kbaseUrl stringByAppendingString:@"gbp&to=eur&q="];
+            processedUrlString = [CCBaseUrl stringByAppendingString:@"gbp&to=eur&q="];
             break;
     }
     processedUrlString = [NSString stringWithFormat:@"%@%d",processedUrlString,quantity];
@@ -52,10 +52,10 @@
 }
 
 #pragma mark - Network call
--(void)refreshDataWithQuantity:(int)quantity {
+-(void)willRefreshDataWithQuantity:(int)quantity {
     NSURLSession *session = [NSURLSession sharedSession];
     __weak typeof(self) weakSelf = self;
-     NSString *urlString = [self constructUrlFromQuantity:quantity];
+     NSString *urlString = [self willConstructUrlFromQuantity:quantity];
     
     [[session dataTaskWithURL:[NSURL URLWithString:urlString]
             completionHandler:^(NSData *data,
@@ -67,7 +67,7 @@
                 }
                 // handle response
                 if (!error) {
-                    [strongSelf processData:data];
+                    [strongSelf willProcessData:data];
                 }
 
                 
@@ -76,22 +76,22 @@
 }
 
 #pragma mark Utility
--(void)processData:(NSData*)data {
+-(void)willProcessData:(NSData*)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
   //  float rate = [[json objectForKey:@"rate"] floatValue];
     float value = [[json objectForKey:@"v"] floatValue];
     
-    CurrencyDataModel *currencyDataModel = [CurrencyDataModel sharedModel];
+    id <CCDataModelProtocol> currencyDataModel = [CCDataModelFactory sharedDataModel];
     
     switch (_currencyType) {
-        case Euro:
+        case EuroMode:
             currencyDataModel.recentEuEuro = value;
             break;
-        case JapanYen:
+        case JapanYenMode:
             currencyDataModel.recentJapanYen = value;
             break;
-        case BrazilReal:
+        case BrazilRealMode:
             currencyDataModel.recentBrazilReals = value;
             break;
         default:

@@ -6,18 +6,13 @@
 //  Copyright (c) 2014 Amol Chaudhari. All rights reserved.
 //
 
-#import "CorePlotViewController.h"
-#import "CurrencyDataModel.h"
+#import "CCCorePlotViewController.h"
+#import "CCDataModelProtocol.h"
+#import "CCDataModelFactory.h"
+#import "CCConstants.h"
+#import "CorePlot-CocoaTouch.h"
 
-#define UKPound @"GBP"
-#define JapanYen @"JPY"
-#define Euro @"EUR"
-#define Brazil @"BRL"
-
-CGFloat const CPDBarWidth = 0.25f;
-CGFloat const CPDBarInitialX = 0.25f;
-
-@interface CorePlotViewController ()<CPTBarPlotDataSource, CPTBarPlotDelegate>
+@interface CCCorePlotViewController ()<CPTBarPlotDataSource, CPTBarPlotDelegate>
 @property (nonatomic, strong) IBOutlet CPTGraphHostingView *hostView;
 @property (nonatomic, strong) CPTBarPlot *ukPounds;
 @property (nonatomic, strong) CPTBarPlot *japanYen;
@@ -27,23 +22,19 @@ CGFloat const CPDBarInitialX = 0.25f;
 @property (nonatomic, strong) CPTPlotSpaceAnnotation *priceAnnotation;
 
 
--(void)initPlot;
--(void)configureGraph;
--(void)configurePlots;
--(void)configureAxes;
 
 @end
 
-@implementation CorePlotViewController
+@implementation CCCorePlotViewController
 
 #pragma mark - View LifeCycle Events
 
 -(void)viewDidLoad {
     [super viewDidLoad];
-    [self initPlot];
+    [self willInitPlot];
     
-    CurrencyDataModel *currencyDataModel = [CurrencyDataModel sharedModel];
-    [currencyDataModel addObserver:self forKeyPath:@"allRecentCurrencyData" options:NSKeyValueObservingOptionNew context:nil];
+    NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
+    [currencyDataModel addObserver:self forKeyPath:NSStringFromSelector(@selector(allRecentCurrencyData)) options:NSKeyValueObservingOptionNew context:nil];
 
 }
 
@@ -54,10 +45,10 @@ CGFloat const CPDBarInitialX = 0.25f;
                        change:(NSDictionary *)change
                       context:(void *)context {
     
-    if ([keyPath isEqualToString:@"allRecentCurrencyData"]) {
+    if ([keyPath isEqualToString:NSStringFromSelector(@selector(allRecentCurrencyData))]) {
         dispatch_async(dispatch_get_main_queue(), ^(void){
             //Run UI Updates
-            [self initPlot]; //Reinitialize graph
+            [self willInitPlot]; //Reinitialize graph
         });
         
     }
@@ -65,14 +56,14 @@ CGFloat const CPDBarInitialX = 0.25f;
 
 
 #pragma mark - Chart behavior
--(void)initPlot {
+-(void)willInitPlot {
     self.hostView.allowPinchScaling = NO;
-    [self configureGraph];
-    [self configurePlots];
-    [self configureAxes];
+    [self willConfigureGraph];
+    [self willConfigurePlots];
+    [self willConfigureAxes];
 }
 
--(void)configureGraph {
+-(void)willConfigureGraph {
 	// 1 - Create the graph
 	CPTGraph *graph = [[CPTXYGraph alloc] initWithFrame:self.hostView.bounds];
 	graph.plotAreaFrame.masksToBorder = NO;
@@ -99,7 +90,7 @@ CGFloat const CPDBarInitialX = 0.25f;
 	//CGFloat xMax = [[[CPDStockPriceStore sharedInstance] datesInWeek] count];
     CGFloat xMax = 3.0f;
 	CGFloat yMin = 0.0f;
-    CurrencyDataModel *currencyDataModel = [CurrencyDataModel sharedModel];
+    NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
 	CGFloat yMax = currencyDataModel.recentBrazilReals*1.5;  // should determine dynamically based on max price
 	CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *) graph.defaultPlotSpace;
 	plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(xMin) length:CPTDecimalFromFloat(xMax)];
@@ -108,7 +99,7 @@ CGFloat const CPDBarInitialX = 0.25f;
 
 }
 
--(void)configurePlots {
+-(void)willConfigurePlots {
 	// 1 - Set up the three plots
 	self.ukPounds = [CPTBarPlot tubularBarPlotWithColor:[CPTColor redColor] horizontalBars:NO];
 	self.ukPounds.identifier = @"GBP";
@@ -138,7 +129,7 @@ CGFloat const CPDBarInitialX = 0.25f;
 	}
 }
 
--(void)configureAxes {
+-(void)willConfigureAxes {
 	// 1 - Configure styles
 	CPTMutableTextStyle *axisTitleStyle = [CPTMutableTextStyle textStyle];
 	axisTitleStyle.color = [CPTColor whiteColor];
@@ -172,17 +163,17 @@ CGFloat const CPDBarInitialX = 0.25f;
 -(NSNumber *)numberForPlot:(CPTPlot *)plot field:(NSUInteger)fieldEnum recordIndex:(NSUInteger)index {
    
     if ((fieldEnum == CPTBarPlotFieldBarTip) && (index < 4)) {
-        CurrencyDataModel *currencyDataModel = [CurrencyDataModel sharedModel];
-        if ([plot.identifier isEqual:UKPound] == YES) {
+        NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
+        if ([plot.identifier isEqual:CCUKPound] == YES) {
             return [NSDecimalNumber numberWithFloat:currencyDataModel.recentUkPounds];
 
-        } else if ([plot.identifier isEqual:JapanYen] == YES) {
+        } else if ([plot.identifier isEqual:CCJapanYen] == YES) {
             return [NSDecimalNumber numberWithFloat:currencyDataModel.recentJapanYen];
 
-        } else if ([plot.identifier isEqual:Euro] == YES) {
+        } else if ([plot.identifier isEqual:CCEuro] == YES) {
             return [NSDecimalNumber numberWithUnsignedInteger:currencyDataModel.recentEuEuro];
 
-        } else if ([plot.identifier isEqual:Brazil] == YES) {
+        } else if ([plot.identifier isEqual:CCBrazil] == YES) {
             return [NSDecimalNumber numberWithUnsignedInteger:currencyDataModel.recentBrazilReals];
         }
 
@@ -197,7 +188,7 @@ CGFloat const CPDBarInitialX = 0.25f;
 
 
 -(void)dealloc {
-    CurrencyDataModel *currencyDataModel = [CurrencyDataModel sharedModel];
+    NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
     [currencyDataModel removeObserver:self forKeyPath:@"allRecentCurrencyData"];
 }
 

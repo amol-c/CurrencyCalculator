@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>525C1BA1-973D-464A-B3C6-6B656370B885</string>
+	<key>IDESourceControlProjectName</key>
+	<string>CurrencyCalculator</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>E15C01EC-60CE-42F5-A068-0521D3283565</key>
+		<string>https://github.com/CodingForNirvana/CurrencyCalculator.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>CurrencyCalculator.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>E15C01EC-60CE-42F5-A068-0521D3283565</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/CodingForNirvana/CurrencyCalculator.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>E15C01EC-60CE-42F5-A068-0521D3283565</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>E15C01EC-60CE-42F5-A068-0521D3283565</string>
+			<key>IDESourceControlWCCName</key>
+			<string>CurrencyCalculator</string>
+		</dict>
+	</array>
+</dict>
+</plist>

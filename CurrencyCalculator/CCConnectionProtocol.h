@@ -1,24 +1,25 @@
 //
-//  ConnectionHandler.h
+//  CCConnectionProtocol.h
 //  CurrencyCalculator
 //
-//  Created by Amol Chaudhari on 5/19/14.
+//  Created by Amol Chaudhari on 5/29/14.
 //  Copyright (c) 2014 Amol Chaudhari. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, CurrencyType) {
-    UKPounds,
-    Euro,
-    JapanYen,
-    BrazilReal
+    UKPoundsModeDefault,
+    EuroMode,
+    JapanYenMode,
+    BrazilRealMode
 };
 
-@interface ConnectionHandler : NSObject
+@protocol CCConnectionProtocol <NSObject>
+
 @property(nonatomic,readonly)CurrencyType currencyType;
 
 -(id)initWithCurrencyType:(CurrencyType)currencyType;
--(void)refreshDataWithQuantity:(int)quantity;
+-(void)willRefreshDataWithQuantity:(int)quantity;
 
 @end
