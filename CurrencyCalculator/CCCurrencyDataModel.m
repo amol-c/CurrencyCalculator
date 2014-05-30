@@ -47,38 +47,27 @@
 #pragma mark Setters
 -(void)setRecentUkPounds:(float)recentUkPounds {
     if (_recentUkPounds != recentUkPounds) {
-            _recentUkPounds=recentUkPounds;
-         }
+        _recentUkPounds=recentUkPounds;
         NSNumber *numberFormat = [NSNumber numberWithFloat:recentUkPounds];
-    
-        [self willChangeValueForKey:@"allRecentCurrencyData"];
         [self.allRecentCurrencyData setValue:numberFormat forKey:@"recentUkPounds"];
-        [self didChangeValueForKey:@"allRecentCurrencyData"];
-   
+    }
 }
 
 -(void)setRecentJapanYen:(float)recentJapanYen {
     if (_recentJapanYen != recentJapanYen) {
         _recentJapanYen=recentJapanYen;
-    }
+        
         NSNumber *numberFormat = [NSNumber numberWithFloat:_recentJapanYen];
-    
-        [self willChangeValueForKey:@"allRecentCurrencyData"];
         [self.allRecentCurrencyData setValue:numberFormat forKey:@"recentJapanYen"];
-        [self didChangeValueForKey:@"allRecentCurrencyData"];
-
-   
+    }
 }
 
 -(void)setRecentEuEuro:(float)recentEuEuro {
     if (_recentEuEuro != recentEuEuro) {
         _recentEuEuro=recentEuEuro;
-        }
         NSNumber *numberFormat = [NSNumber numberWithFloat:_recentEuEuro];
-    
-        [self willChangeValueForKey:@"allRecentCurrencyData"];
         [self.allRecentCurrencyData setValue:numberFormat forKey:@"recentEuEuro"];
-        [self didChangeValueForKey:@"allRecentCurrencyData"];
+        }
 
 
 }
@@ -86,13 +75,23 @@
 -(void)setRecentBrazilReals:(float)recentBrazilReals {
     if (_recentBrazilReals != recentBrazilReals) {
         _recentBrazilReals=recentBrazilReals;
-        }
-    
         NSNumber *numberFormat = [NSNumber numberWithFloat:_recentBrazilReals];
-        [self willChangeValueForKey:@"allRecentCurrencyData"];
         [self.allRecentCurrencyData setValue:numberFormat forKey:@"recentBrazilReals"];
-        [self didChangeValueForKey:@"allRecentCurrencyData"];
-
+    }
 }
+
+#pragma mark override
++ (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
+{
+    NSSet *keyPaths = [super keyPathsForValuesAffectingValueForKey:key];
+    
+    if ([key isEqualToString:@"allRecentCurrencyData"]) {
+        NSArray *affectingKeys = @[@"recentBrazilReals", @"recentEuEuro",@"recentUkPounds",@"recentJapanYen"];
+        keyPaths = [keyPaths setByAddingObjectsFromArray:affectingKeys];
+    }
+    return keyPaths;
+}
+
+
 
 @end

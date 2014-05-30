@@ -12,6 +12,9 @@
 #import "CCConstants.h"
 #import "CorePlot-CocoaTouch.h"
 
+
+static void * CorePlotViewControllerContext = &CorePlotViewControllerContext;
+
 @interface CCCorePlotViewController ()<CPTBarPlotDataSource, CPTBarPlotDelegate>
 @property (nonatomic, strong) IBOutlet CPTGraphHostingView *hostView;
 @property (nonatomic, strong) CPTBarPlot *ukPounds;
@@ -34,10 +37,15 @@
     [self willInitPlot];
     
     NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
-    [currencyDataModel addObserver:self forKeyPath:NSStringFromSelector(@selector(allRecentCurrencyData)) options:NSKeyValueObservingOptionNew context:nil];
+    [currencyDataModel addObserver:self forKeyPath:NSStringFromSelector(@selector(allRecentCurrencyData)) options:NSKeyValueObservingOptionNew context:CorePlotViewControllerContext];
 
 }
 
+
+-(void)dealloc {
+    NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
+    [currencyDataModel removeObserver:self forKeyPath:@"allRecentCurrencyData" context:CorePlotViewControllerContext];
+}
 
 #pragma mark - KVO
 -(void)observeValueForKeyPath:(NSString *)keyPath
@@ -186,11 +194,6 @@
    
 }
 
-
--(void)dealloc {
-    NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
-    [currencyDataModel removeObserver:self forKeyPath:@"allRecentCurrencyData"];
-}
 
 
 @end

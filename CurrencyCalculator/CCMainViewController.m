@@ -11,6 +11,10 @@
 #import "CCDataModelFactory.h"
 #import "CCConnectionFactory.h"
 
+
+static void * MainViewControllerContext = &MainViewControllerContext;
+
+
 @interface CCMainViewController ()<UITextFieldDelegate> {
     NSMutableArray *_connectionHandlerArray;
 }
@@ -30,6 +34,8 @@
 
 @implementation CCMainViewController
 
+
+
 #pragma mark - View Lifecycle Events
 - (void)viewDidLoad
 {
@@ -48,7 +54,8 @@
 
     
     NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
-    [currencyDataModel addObserver:self forKeyPath:NSStringFromSelector(@selector(allRecentCurrencyData)) options:NSKeyValueObservingOptionNew context:nil];
+    //You cannot call addObserver on a property declared on a protocol
+    [currencyDataModel addObserver:self forKeyPath:NSStringFromSelector(@selector(allRecentCurrencyData)) options:NSKeyValueObservingOptionNew context:MainViewControllerContext];
     
     [_numberOfDollars setDelegate:self]; //To dismiss the key board
 }
@@ -56,7 +63,7 @@
 
 -(void)dealloc {
     NSObject <CCDataModelProtocol> *currencyDataModel = [CCDataModelFactory sharedDataModel];
-    [currencyDataModel removeObserver:self forKeyPath:NSStringFromSelector(@selector(allRecentCurrencyData))];
+    [currencyDataModel removeObserver:self forKeyPath:NSStringFromSelector(@selector(allRecentCurrencyData))context:MainViewControllerContext];
 }
 
 - (void)didReceiveMemoryWarning
